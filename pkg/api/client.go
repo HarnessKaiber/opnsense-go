@@ -129,7 +129,9 @@ func (c *Client) doRequest(ctx context.Context, method, endpoint string, body an
 	reqCopy := req.Clone(req.Context())
 	reqCopy.Header.Set("Authorization", "****************")
 
-	dReq, _ := httputil.DumpRequest(reqCopy, true)
+	// Request and response payloads can contain passwords, API secrets, and
+	// private keys. Log only their metadata after redacting Authorization.
+	dReq, _ := httputil.DumpRequest(reqCopy, false)
 	logger.Println(fmt.Sprintf("\n%s\n", string(dReq)))
 
 	// Do request
@@ -140,7 +142,7 @@ func (c *Client) doRequest(ctx context.Context, method, endpoint string, body an
 	defer res.Body.Close()
 
 	// Log response
-	dRes, _ := httputil.DumpResponse(res, true)
+	dRes, _ := httputil.DumpResponse(res, false)
 	logger.Println(ctx, fmt.Sprintf("\n%s\n", string(dRes)))
 
 	// Check for 200
