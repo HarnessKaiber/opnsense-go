@@ -25,9 +25,11 @@ func TestNewClientEnablesHTTP2(t *testing.T) {
 func TestDoRequestDoesNotLogPayloads(t *testing.T) {
 	const requestSecret = "request-secret"
 	const responseSecret = "response-secret"
+	const sessionSecret = "session-secret"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		http.SetCookie(w, &http.Cookie{Name: "PHPSESSID", Value: sessionSecret})
 		_ = json.NewEncoder(w).Encode(map[string]string{"secret": responseSecret})
 	}))
 	defer server.Close()
@@ -48,7 +50,7 @@ func TestDoRequestDoesNotLogPayloads(t *testing.T) {
 		t.Fatalf("response secret = %q, want %q", response["secret"], responseSecret)
 	}
 
-	for _, secret := range []string{requestSecret, responseSecret, "api-key", "api-secret"} {
+	for _, secret := range []string{requestSecret, responseSecret, sessionSecret, "api-key", "api-secret"} {
 		if strings.Contains(logs.String(), secret) {
 			t.Errorf("logs contain sensitive value %q: %s", secret, logs.String())
 		}

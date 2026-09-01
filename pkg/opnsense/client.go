@@ -24,6 +24,7 @@ import (
 	"github.com/browningluke/opnsense-go/pkg/trust"
 	"github.com/browningluke/opnsense-go/pkg/unbound"
 	"github.com/browningluke/opnsense-go/pkg/wireguard"
+	"github.com/browningluke/opnsense-go/pkg/zenarmor"
 )
 
 // Client defines a client interface for the Proxmox Virtual Environment API.
@@ -48,6 +49,7 @@ type Client interface {
 	Trust() *trust.Controller
 	Unbound() *unbound.Controller
 	Wireguard() *wireguard.Controller
+	Zenarmor() *zenarmor.Controller
 }
 
 type client struct {
@@ -137,4 +139,8 @@ func (c *client) Unbound() *unbound.Controller {
 
 func (c *client) Wireguard() *wireguard.Controller {
 	return &wireguard.Controller{Api: c.a}
+}
+
+func (c *client) Zenarmor() *zenarmor.Controller {
+	return &zenarmor.Controller{Api: c.a}
 }

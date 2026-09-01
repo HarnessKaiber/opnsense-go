@@ -141,8 +141,12 @@ func (c *Client) doRequest(ctx context.Context, method, endpoint string, body an
 	}
 	defer res.Body.Close()
 
-	// Log response
-	dRes, _ := httputil.DumpResponse(res, false)
+	// Log response metadata without emitting session cookies returned by OPNsense.
+	resCopy := new(http.Response)
+	*resCopy = *res
+	resCopy.Header = res.Header.Clone()
+	resCopy.Header.Del("Set-Cookie")
+	dRes, _ := httputil.DumpResponse(resCopy, false)
 	logger.Println(ctx, fmt.Sprintf("\n%s\n", string(dRes)))
 
 	// Check for 200
